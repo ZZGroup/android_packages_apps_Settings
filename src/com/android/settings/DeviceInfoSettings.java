@@ -82,6 +82,7 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment implements In
     private static final String PROPERTY_EQUIPMENT_ID = "ro.ril.fccid";
     private static final String KEY_DEVICE_FEEDBACK = "device_feedback";
     private static final String KEY_SAFETY_LEGAL = "safetylegal";
+    private static final String KEY_CZZ_VERSION = "czz_version";
     private static final String KEY_PA_VERSION = "pa_version";
 
     static final int TAPS_TO_BE_A_DEVELOPER = 7;
@@ -130,6 +131,9 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment implements In
         setStringSummary(KEY_BUILD_NUMBER, Build.DISPLAY);
         findPreference(KEY_BUILD_NUMBER).setEnabled(true);
         findPreference(KEY_KERNEL_VERSION).setSummary(getFormattedKernelVersion());
+        findPreference(KEY_CZZ_VERSION).setEnabled(true);
+        setValueSummary(KEY_CZZ_VERSION, "ro.czz.version");
+        findPreference(KEY_PA_VERSION).setEnabled(true);
         setValueSummary(KEY_PA_VERSION, "ro.pa.version");
 
         if (!SELinux.isSELinuxEnabled()) {
@@ -209,6 +213,22 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment implements In
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
         if (preference.getKey().equals(KEY_FIRMWARE_VERSION)) {
+            System.arraycopy(mHits, 1, mHits, 0, mHits.length - 1);
+            mHits[mHits.length - 1] = SystemClock.uptimeMillis();
+            if (mHits[0] >= (SystemClock.uptimeMillis() - 500)) {
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.setClassName("android",
+                        com.android.internal.app.PlatLogoActivity.class.getName());
+                try {
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "Unable to start activity " + intent.toString());
+                }
+            }
+        } else if (preference.getKey().equals(KEY_CZZ_VERSION)) {
+            System.arraycopy(mHits, 1, mHits, 0, mHits.length-1);
+            mHits[mHits.length-1] = SystemClock.uptimeMillis();
+        } else if (preference.getKey().equals(KEY_PA_VERSION)) {
             System.arraycopy(mHits, 1, mHits, 0, mHits.length-1);
             mHits[mHits.length-1] = SystemClock.uptimeMillis();
             if (mHits[0] >= (SystemClock.uptimeMillis()-500)) {
